@@ -1,0 +1,112 @@
+use Libraries.Game.Game
+use Libraries.Sound.Audio
+use Libraries.Game.Graphics.Color
+use Libraries.Interface.Events.KeyboardEvent
+use Libraries.Interface.Events.KeyboardListener
+use Libraries.Game.Graphics.Label
+use Libraries.Game.Graphics.Font
+use Libraries.Sound.Speech
+use Libraries.Compute.Random
+
+class Main is Game, KeyboardListener
+    // Instantiating a Random object
+    Random ran
+
+    // Instantiating the Audio objects
+    Audio winSound
+    Audio loseSound
+    Audio diceRoll
+
+    // Instatiating the Color objects
+    Color color
+    Color navy = color:Navy()
+    Color black = color:Black()
+
+    // Instantiating a Font object
+    Font font1
+
+    // Instantiating a Lable object
+    Label label1
+
+    //Instatiating a Speech object
+    Speech speech
+
+    // Declaring integer variables for the computer's dice and your dice
+    integer compDice = 0
+    integer yourDice = 0
+
+    // Declaring a text varibale that stores casted value from the integer varibale 'caounter'
+    text dice1 = ""
+    text dice2 = ""
+    text displayText = "The computer just rolled its dice, press [enter] to roll your dice to see if you can beat the number computer rolled."
+
+    action Main
+        StartGame()
+    end
+
+    action CreateGame
+
+        //Setting the atributes fo the Font object
+        font1:LoadFont("Arial")
+        font1:SetSize(48)
+        font1:SetColor(navy)
+        
+        // Setting the attributes to the Label object and adding it to the screen
+        label1:SetFont(font1)
+        label1:SetPosition(50, 400)
+        label1:SetWidth(600)
+        label1:SetText(displayText)
+        label1:SetDescription(displayText)
+        Add(label1)
+
+        // Have the comuter generate the integer for its dice, and reassigning the value to compDice
+        compDice = ran:RandomIntegerBetween(1, 6)
+        // Casting the compDice to text variable to be used in the label
+        dice1 = cast(text, compDice)
+
+        // Loading the Audio files to the Audio objects to be played later
+        winSound:Load("media/code/Bing.ogg")
+        loseSound:Load("media/code/Boing.ogg")
+        diceRoll:Load("media/code/DiceRoll.ogg")
+
+        // Playing the computer's dice roll
+        diceRoll:Play()
+
+        // Having the computer listen to the eyboard input
+        AddKeyboardListener(me)
+    end
+
+    action Update(number seconds)
+        // Updating the text display in the label when [enter] key is pressed
+        label1:SetText(displayText)
+        label1:SetDescription(displayText)
+        Add(label1)
+    end
+
+    action PressedKey(KeyboardEvent event)
+        if event:keyCode = event:ENTER
+            // YOUR CODE STRUCTURE INCLUDING IF STAEMENT
+            diceRoll:Play()
+            yourDice = ran:RandomIntegerBetween(1, 6)
+            dice2 = cast(text, yourDice)
+            if compDice > yourDice
+                loseSound:Play()
+                displayText = "The computer rolled " + dice1 + ". You rolled " + dice2 + ". The computer wins." 
+            
+            elseif compDice < yourDice
+                winSound:Play()
+                displayText = "The computer rolled " + dice1 + ". You rolled " + dice2 + ". You win!." 
+            
+            elseif compDice = yourDice
+                loseSound:Play()
+                displayText = "The computer rolled " + dice1 + ". You rolled " + dice2 + ". It's draw." 
+            end
+
+        elseif event:keyCode = event:SPACE
+            speech:Say(label1:GetDescription())
+
+        elseif event:keyCode = event:ESCAPE
+            Exit()
+        end
+    end
+end
